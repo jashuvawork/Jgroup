@@ -73,6 +73,14 @@ body.custom-cursor-active button {
   background-clip: text;
 }
 
+/* Intro hero J — stable premium display, no motion shake */
+.intro-j-letter {
+  text-shadow:
+    0 0 60px rgba(201, 162, 39, 0.35),
+    0 0 120px rgba(201, 162, 39, 0.15);
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.5));
+}
+
 .text-gradient-violet {
   background: linear-gradient(135deg, #e9d5ff 0%, #8b5cf6 50%, #c084fc 100%);
   -webkit-background-clip: text;
