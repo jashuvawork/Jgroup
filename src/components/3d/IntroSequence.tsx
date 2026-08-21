@@ -44,12 +44,18 @@ export function IntroSequence({ onEnter, onSkip }: IntroSequenceProps) {
     <div className="fixed inset-0 z-[200] overflow-hidden bg-[#010101]">
       {use3D && <IntroJ3D />}
 
-      {/* Fallback static J */}
-      {!use3D && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="font-[family-name:var(--font-cinzel)] text-[12rem] text-gradient-gold md:text-[16rem]">J</span>
-        </div>
-      )}
+      {/* Hero J — Cinzel display, stable (no shake) */}
+      <div className="pointer-events-none absolute inset-0 z-[15] flex items-center justify-center">
+        <motion.span
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.4, ease: [0.23, 1, 0.32, 1] }}
+          className="intro-j-letter font-[family-name:var(--font-cinzel)] text-[11rem] font-semibold leading-none tracking-tight text-gradient-gold md:text-[15rem]"
+          aria-hidden
+        >
+          J
+        </motion.span>
+      </div>
 
       {/* Vignette */}
       <div
@@ -64,7 +70,6 @@ export function IntroSequence({ onEnter, onSkip }: IntroSequenceProps) {
             transition={{ duration: 1 }}
             className="relative z-20 flex min-h-screen flex-col items-center justify-end pb-24 md:justify-center md:pb-0"
           >
-            {/* Text overlays — positioned below 3D J on desktop */}
             <div className="mt-auto flex flex-col items-center px-6 md:mt-[38vh]">
               <AnimatePresence mode="wait">
                 {stage >= 2 && (

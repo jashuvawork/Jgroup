@@ -20,10 +20,10 @@ function CameraController() {
   const target = useRef(new THREE.Vector3());
 
   useFrame(() => {
-    target.current.x = pointer.x * 0.6;
-    target.current.y = pointer.y * 0.35;
-    camera.position.x += (target.current.x - camera.position.x) * 0.02;
-    camera.position.y += (0.4 + target.current.y - camera.position.y) * 0.02;
+    target.current.x = pointer.x * 0.25;
+    target.current.y = pointer.y * 0.15;
+    camera.position.x += (target.current.x - camera.position.x) * 0.04;
+    camera.position.y += (0.4 + target.current.y - camera.position.y) * 0.04;
     camera.lookAt(0, 0, 0);
   });
 

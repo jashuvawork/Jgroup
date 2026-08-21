@@ -10,34 +10,25 @@ const GOLD = new THREE.Color("#c9a227");
 const GOLD_EMISSIVE = new THREE.Color("#8a6d12");
 
 export function CentralJ() {
-  const groupRef = useRef<THREE.Group>(null);
   const ring1Ref = useRef<THREE.Mesh>(null);
   const ring2Ref = useRef<THREE.Mesh>(null);
-  const keyLight = useRef<THREE.SpotLight>(null);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(t * 0.15) * 0.04;
-    }
     if (ring1Ref.current) {
-      ring1Ref.current.rotation.x = t * 0.12;
-      ring1Ref.current.rotation.y = t * 0.08;
+      ring1Ref.current.rotation.x = t * 0.06;
+      ring1Ref.current.rotation.y = t * 0.04;
     }
     if (ring2Ref.current) {
-      ring2Ref.current.rotation.x = -t * 0.09;
-      ring2Ref.current.rotation.z = t * 0.14;
-    }
-    if (keyLight.current) {
-      keyLight.current.intensity = 3 + Math.sin(t * 0.8) * 0.4;
+      ring2Ref.current.rotation.x = -t * 0.045;
+      ring2Ref.current.rotation.z = t * 0.07;
     }
   });
 
   return (
-    <group ref={groupRef}>
+    <group>
       {/* Cinematic lighting */}
       <spotLight
-        ref={keyLight}
         position={[4, 8, 6]}
         angle={0.35}
         penumbra={0.8}
@@ -79,7 +70,7 @@ export function CentralJ() {
       </mesh>
 
       {/* Extruded metallic J */}
-      <Float speed={0.8} rotationIntensity={0.02} floatIntensity={0.15}>
+      <Float speed={0.4} rotationIntensity={0} floatIntensity={0.04}>
         <Suspense fallback={
           <mesh>
             <boxGeometry args={[0.5, 2.5, 0.5]} />
@@ -88,7 +79,7 @@ export function CentralJ() {
         }>
           <Center position={[0, 0.2, 0]}>
             <Text3D
-              font="/fonts/helvetiker_bold.typeface.json"
+              font="/fonts/gentilis_bold.typeface.json"
               size={2.2}
               height={0.35}
               bevelEnabled
