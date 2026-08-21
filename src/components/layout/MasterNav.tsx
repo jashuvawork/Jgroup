@@ -7,9 +7,9 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const masterLinks = [
-  { href: "/#explore", label: "Explore" },
+  { href: "/explore", label: "Explore" },
   { href: "/about", label: "About" },
-  { href: "/#explore", label: "Our Worlds" },
+  { href: "/explore", label: "Our Worlds" },
   { href: "/contact", label: "Contact" },
 ];
 
