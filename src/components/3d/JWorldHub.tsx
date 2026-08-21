@@ -33,9 +33,10 @@ function CameraController() {
 interface JWorldHubProps {
   businesses: BusinessWithTheme[];
   onEnterWorld: (route: string) => void;
+  onHoverWorld?: (slug: string | null) => void;
 }
 
-function Scene({ businesses, onEnterWorld }: JWorldHubProps) {
+function Scene({ businesses, onEnterWorld, onHoverWorld }: JWorldHubProps) {
   return (
     <>
       <color attach="background" args={["#020202"]} />
@@ -59,7 +60,7 @@ function Scene({ businesses, onEnterWorld }: JWorldHubProps) {
             accentColor={biz.theme?.accentColor || biz.theme?.primaryColor || "#c9a227"}
             heroImage={biz.heroImage}
             onClick={() => onEnterWorld(biz.route)}
-            onHover={() => {}}
+            onHover={(h) => onHoverWorld?.(h ? biz.slug : null)}
           />
         );
       })}
@@ -86,7 +87,7 @@ function Scene({ businesses, onEnterWorld }: JWorldHubProps) {
   );
 }
 
-export function JWorldHub({ businesses, onEnterWorld }: JWorldHubProps) {
+export function JWorldHub({ businesses, onEnterWorld, onHoverWorld }: JWorldHubProps) {
   return (
     <div className="absolute inset-0">
       <Canvas
@@ -102,7 +103,7 @@ export function JWorldHub({ businesses, onEnterWorld }: JWorldHubProps) {
         }}
       >
         <Suspense fallback={null}>
-          <Scene businesses={businesses} onEnterWorld={onEnterWorld} />
+          <Scene businesses={businesses} onEnterWorld={onEnterWorld} onHoverWorld={onHoverWorld} />
         </Suspense>
       </Canvas>
 

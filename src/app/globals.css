@@ -40,6 +40,15 @@ body {
   font-feature-settings: "kern" 1, "liga" 1;
 }
 
+body.custom-cursor-active {
+  cursor: none;
+}
+
+body.custom-cursor-active a,
+body.custom-cursor-active button {
+  cursor: none;
+}
+
 ::selection {
   background: rgba(201, 162, 39, 0.25);
   color: white;
