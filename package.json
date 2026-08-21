@@ -1,0 +1,29 @@
+{
+  "name": "jgroup",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Jgroup - a small full-stack group roster app (Express API + React/Vite web).",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w server\" \"npm run dev -w web\"",
+    "build": "npm run build -w server && npm run build -w web",
+    "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
+    "lint": "eslint .",
+    "start": "npm run start -w server"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
