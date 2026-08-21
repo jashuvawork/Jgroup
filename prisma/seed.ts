@@ -1,9 +1,13 @@
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import bcrypt from "bcryptjs";
 
-const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error("DATABASE_URL required for seeding");
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -37,6 +41,7 @@ async function main() {
 
   const settings = [
     { key: "site_name", value: "J" },
+    { key: "site_url", value: "https://jgroup.space" },
     { key: "tagline", value: "One Vision. Many Possibilities." },
     { key: "phone", value: "+91 98765 43210" },
     { key: "whatsapp", value: "+919876543210" },
@@ -229,4 +234,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

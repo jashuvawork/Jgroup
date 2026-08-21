@@ -1,63 +1,60 @@
-# J Brand Ecosystem
+# J Group — jgroup.space
 
-Premium, futuristic, immersive 3D brand ecosystem website for the J master brand.
+**ONE VISION. MANY POSSIBILITIES.**
 
-## One Vision. Many Possibilities.
+Premium multi-business digital ecosystem for J Surprise Events, J Foods, J Foundation, and future J worlds.
 
-### Tech Stack
+## Tech Stack
 
-- **Next.js 16** with App Router
-- **TypeScript**
-- **React Three Fiber** + Drei for 3D experiences
-- **Framer Motion** + GSAP for animations
-- **Prisma** + SQLite for database
-- **NextAuth** for admin authentication
-- **Tailwind CSS** for styling
+- **Next.js 16** (App Router) + TypeScript
+- **Railway PostgreSQL** — production database backend
+- **Prisma 7** — ORM with PostgreSQL adapter
+- **React Three Fiber** — cinematic 3D where appropriate
+- **Framer Motion** — premium animations
+- **NextAuth** — admin authentication
+- **Tailwind CSS** — design system
 
-### Getting Started
+## Local Development
 
 ```bash
+# Start PostgreSQL
+docker compose up -d
+
+# Install & setup
 npm install
-npx prisma migrate dev
+cp .env.example .env
+npx prisma migrate deploy
 npm run db:seed
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### Admin Panel
+## Production Deployment
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for Railway + `jgroup.space` setup.
+
+| Environment | `NEXT_PUBLIC_APP_URL` |
+|-------------|------------------------|
+| Production  | `https://jgroup.space` |
+
+## Admin
 
 - URL: `/admin`
-- Email: `admin@jbrand.com`
-- Password: `admin123`
+- Demo: `admin@jbrand.com` / `admin123`
 
-### J Worlds
+## Key Routes
 
-- **J Surprise Events** — `/j-surprise-events`
-- **J Foods** — `/j-foods`
-- **J Foundation** — `/j-foundation`
+| Route | Description |
+|-------|-------------|
+| `/` | J Space intro + cinematic hub |
+| `/explore` | All J worlds |
+| `/j-foods` | Food ordering experience |
+| `/j-surprise-events` | Events & celebrations |
+| `/j-foundation` | Community impact |
+| `/about` | The J story |
+| `/contact` | Enquiries |
 
-### Features
+## Roadmap
 
-- Cinematic 3D opening sequence
-- Interactive 3D world hub with floating portals
-- Distinct visual experiences per business
-- Scalable business directory (add new J worlds via admin)
-- Full admin panel with business management
-- Impact statistics from database
-- Contact form with business routing
-- WebGL fallback for unsupported devices
-- Mobile-optimized experience
-- Sound toggle (off by default)
-
-### Environment Variables
-
-```
-DATABASE_URL=file:./dev.db
-AUTH_SECRET=your-secret-key
-AUTH_URL=http://localhost:3000
-```
-
-### Deployment
-
-Configured for Vercel deployment with Prisma.
+See [docs/ROADMAP.md](docs/ROADMAP.md) for phased build plan.

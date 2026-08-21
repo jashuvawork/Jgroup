@@ -1,0 +1,17 @@
+{
+  "name": "J Group — J Space",
+  "short_name": "J",
+  "description": "ONE VISION. MANY POSSIBILITIES. Welcome to the world of J.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

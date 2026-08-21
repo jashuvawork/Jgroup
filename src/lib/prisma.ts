@@ -1,10 +1,21 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
 function createPrismaClient() {
-  const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is required. Set it to your Railway PostgreSQL URL.");
+  }
+
+  const pool = new Pool({
+    connectionString,
+    ssl: connectionString.includes("railway") || connectionString.includes("sslmode=require")
+      ? { rejectUnauthorized: false }
+      : undefined,
+  });
+
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 

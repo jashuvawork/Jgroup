@@ -1,12 +1,4 @@
 {
-  "buildCommand": "prisma generate && prisma migrate deploy && npm run db:seed && next build",
-  "installCommand": "npm install",
-  "env": {
-    "DATABASE_URL": "file:./prisma/production.db"
-  },
-  "build": {
-    "env": {
-      "DATABASE_URL": "file:./prisma/production.db"
-    }
-  }
+  "buildCommand": "npm run vercel-build",
+  "installCommand": "npm install"
 }
