@@ -1,97 +1,125 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, Suspense } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Text, MeshDistortMaterial, Torus } from "@react-three/drei";
+import { Text3D, Center, MeshReflectorMaterial, Float } from "@react-three/drei";
 import * as THREE from "three";
 import { ParticleField } from "./ParticleField";
 
+const GOLD = new THREE.Color("#c9a227");
+const GOLD_EMISSIVE = new THREE.Color("#8a6d12");
+
 export function CentralJ() {
   const groupRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
-  const lightRef = useRef<THREE.PointLight>(null);
-  const light2Ref = useRef<THREE.PointLight>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const keyLight = useRef<THREE.SpotLight>(null);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(t * 0.2) * 0.08;
+      groupRef.current.rotation.y = Math.sin(t * 0.15) * 0.04;
     }
-    if (ringRef.current) {
-      ringRef.current.rotation.x = t * 0.15;
-      ringRef.current.rotation.z = t * 0.1;
+    if (ring1Ref.current) {
+      ring1Ref.current.rotation.x = t * 0.12;
+      ring1Ref.current.rotation.y = t * 0.08;
     }
-    if (lightRef.current) {
-      lightRef.current.intensity = 2.5 + Math.sin(t * 1.5) * 0.8;
+    if (ring2Ref.current) {
+      ring2Ref.current.rotation.x = -t * 0.09;
+      ring2Ref.current.rotation.z = t * 0.14;
     }
-    if (light2Ref.current) {
-      light2Ref.current.intensity = 1 + Math.cos(t * 2) * 0.5;
+    if (keyLight.current) {
+      keyLight.current.intensity = 3 + Math.sin(t * 0.8) * 0.4;
     }
   });
 
   return (
     <group ref={groupRef}>
-      <pointLight ref={lightRef} position={[0, 3, 2]} color="#e8d48b" intensity={2.5} distance={20} />
-      <pointLight ref={light2Ref} position={[-3, -1, 3]} color="#8b5cf6" intensity={1} distance={15} />
-      <ambientLight intensity={0.08} />
+      {/* Cinematic lighting */}
+      <spotLight
+        ref={keyLight}
+        position={[4, 8, 6]}
+        angle={0.35}
+        penumbra={0.8}
+        intensity={3}
+        color="#fff8e7"
+        castShadow
+        shadow-mapSize={[1024, 1024]}
+      />
+      <spotLight position={[-5, 3, 4]} angle={0.4} penumbra={1} intensity={1.2} color="#8b5cf6" />
+      <pointLight position={[0, -2, 4]} intensity={0.6} color="#c9a227" distance={12} />
+      <ambientLight intensity={0.15} />
 
-      {/* Orbital ring */}
-      <Torus ref={ringRef} args={[2.8, 0.015, 16, 100]} position={[0, 0, 0]}>
-        <meshBasicMaterial color="#c9a227" transparent opacity={0.25} />
-      </Torus>
-
-      {/* Second ring */}
-      <mesh rotation={[Math.PI / 3, 0, Math.PI / 4]}>
-        <torusGeometry args={[3.2, 0.008, 16, 100]} />
-        <meshBasicMaterial color="#8b5cf6" transparent opacity={0.15} />
+      {/* Reflective platform */}
+      <mesh position={[0, -2.35, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[4.5, 64]} />
+        <MeshReflectorMaterial
+          blur={[280, 100]}
+          resolution={512}
+          mixBlur={0.8}
+          mixStrength={0.35}
+          roughness={0.85}
+          depthScale={0.6}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1.4}
+          color="#0a0a0a"
+          metalness={0.6}
+          mirror={0.4}
+        />
       </mesh>
 
-      {/* J letter structure */}
-      <group position={[0, 0, 0]}>
-        <mesh position={[-0.35, 0.1, 0]} castShadow>
-          <boxGeometry args={[0.45, 3.2, 0.45]} />
-          <MeshDistortMaterial
-            color="#f5f0e8"
-            emissive="#c9a227"
-            emissiveIntensity={0.4}
-            metalness={0.95}
-            roughness={0.05}
-            distort={0.08}
-            speed={1.5}
-          />
-        </mesh>
-        <mesh position={[0.35, -1.05, 0]} rotation={[0, 0, -0.28]} castShadow>
-          <boxGeometry args={[1.3, 0.45, 0.45]} />
-          <MeshDistortMaterial
-            color="#f5f0e8"
-            emissive="#c9a227"
-            emissiveIntensity={0.4}
-            metalness={0.95}
-            roughness={0.05}
-            distort={0.08}
-            speed={1.5}
-          />
-        </mesh>
-      </group>
-
-      {/* Base glow platform */}
-      <mesh position={[0, -2.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[2, 64]} />
-        <meshBasicMaterial color="#8b5cf6" transparent opacity={0.06} />
+      {/* Orbital rings — thin brushed metal */}
+      <mesh ref={ring1Ref}>
+        <torusGeometry args={[3.2, 0.012, 8, 128]} />
+        <meshStandardMaterial color="#c9a227" metalness={0.95} roughness={0.25} transparent opacity={0.5} />
+      </mesh>
+      <mesh ref={ring2Ref} rotation={[Math.PI / 2.5, 0.3, 0]}>
+        <torusGeometry args={[3.6, 0.008, 8, 128]} />
+        <meshStandardMaterial color="#a78bfa" metalness={0.9} roughness={0.3} transparent opacity={0.35} />
       </mesh>
 
-      <Text
-        position={[0, 3.8, 0]}
-        fontSize={0.22}
-        color="#c9a227"
-        anchorX="center"
-        letterSpacing={0.15}
-        fillOpacity={0.7}
-      >
-        ONE VISION. MANY POSSIBILITIES.
-      </Text>
+      {/* Extruded metallic J */}
+      <Float speed={0.8} rotationIntensity={0.02} floatIntensity={0.15}>
+        <Suspense fallback={
+          <mesh>
+            <boxGeometry args={[0.5, 2.5, 0.5]} />
+            <meshStandardMaterial color="#c9a227" metalness={0.9} roughness={0.2} />
+          </mesh>
+        }>
+          <Center position={[0, 0.2, 0]}>
+            <Text3D
+              font="/fonts/helvetiker_bold.typeface.json"
+              size={2.2}
+              height={0.35}
+              bevelEnabled
+              bevelThickness={0.04}
+              bevelSize={0.02}
+              bevelSegments={8}
+              curveSegments={16}
+              castShadow
+              receiveShadow
+            >
+              J
+              <meshStandardMaterial
+                color={GOLD}
+                emissive={GOLD_EMISSIVE}
+                emissiveIntensity={0.15}
+                metalness={0.92}
+                roughness={0.18}
+                envMapIntensity={1.2}
+              />
+            </Text3D>
+          </Center>
+        </Suspense>
+      </Float>
 
-      <ParticleField count={400} color="#8b5cf6" accentColor="#c9a227" size={0.012} />
+      {/* Ground glow */}
+      <mesh position={[0, -2.34, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.8, 64]} />
+        <meshBasicMaterial color="#c9a227" transparent opacity={0.08} />
+      </mesh>
+
+      <ParticleField count={200} color="#8b5cf6" accentColor="#c9a227" size={0.008} speed={0.15} />
     </group>
   );
 }
