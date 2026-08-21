@@ -10,7 +10,6 @@ import { MobileJourney } from "@/components/experience/MobileJourney";
 import { WorldHoverPanel, DistantLabels } from "@/components/experience/WorldHoverPanel";
 import { MasterNav } from "@/components/layout/MasterNav";
 import { SoundToggle } from "@/components/ui/SoundToggle";
-import { MagneticButton } from "@/components/ui/MagneticButton";
 import { useWebGL } from "@/contexts/WebGLContext";
 import type { BusinessWithTheme } from "@/lib/types";
 
