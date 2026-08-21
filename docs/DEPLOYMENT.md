@@ -35,8 +35,8 @@ RAILWAY=true
 
 Railway reads `railway.toml` and runs:
 
-- **Build:** `npm run build:railway` (migrate + seed + next build)
-- **Start:** `npm run railway:start`
+- **Build:** `npm run build` (prisma generate + next build)
+- **Start:** `npm run railway:start` (migrate + seed + next start)
 - **Health check:** `/api/health`
 
 ### 4. Custom domain (jgroup.space)
