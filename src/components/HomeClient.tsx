@@ -2,27 +2,16 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { IntroSequence } from "@/components/3d/IntroSequence";
+import { CinematicHub } from "@/components/experience/CinematicHub";
 import { ScrollJourney } from "@/components/experience/ScrollJourney";
 import { MobileJourney } from "@/components/experience/MobileJourney";
-import {
-  WorldHoverPanel,
-  HubMasterCopy,
-  FutureWorldLabel,
-} from "@/components/experience/WorldHoverPanel";
 import { MasterNav } from "@/components/layout/MasterNav";
 import { SoundToggle } from "@/components/ui/SoundToggle";
-import { useWebGL } from "@/contexts/WebGLContext";
 import { WORLD_LAYOUT } from "@/lib/hub-worlds";
 import type { BusinessWithTheme } from "@/lib/types";
-
-const JWorldHub = dynamic(
-  () => import("@/components/3d/JWorldHub").then((m) => m.JWorldHub),
-  { ssr: false, loading: () => <div className="absolute inset-0 bg-[#080807]" /> }
-);
 
 interface HomeClientProps {
   businesses: BusinessWithTheme[];
@@ -32,12 +21,8 @@ type Phase = "intro" | "hub";
 
 export function HomeClient({ businesses }: HomeClientProps) {
   const [phase, setPhase] = useState<Phase>("intro");
-  const [hubReady, setHubReady] = useState(false);
-  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
-  const [focusSlug, setFocusSlug] = useState<string | null>(null);
   const [transitionRoute, setTransitionRoute] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const { supported, reducedMotion, lowEnd } = useWebGL();
   const router = useRouter();
 
   useEffect(() => {
@@ -46,10 +31,7 @@ export function HomeClient({ businesses }: HomeClientProps) {
     if (skipped === "1") setPhase("hub");
   }, []);
 
-  const enterHub = useCallback(() => {
-    setPhase("hub");
-    setTimeout(() => setHubReady(true), 800);
-  }, []);
+  const enterHub = useCallback(() => setPhase("hub"), []);
 
   const skipIntro = useCallback(() => {
     sessionStorage.setItem("j-skip-intro", "1");
@@ -58,22 +40,14 @@ export function HomeClient({ businesses }: HomeClientProps) {
 
   const handleEnterWorld = useCallback(
     (route: string) => {
-      const slug = businesses.find((b) => b.route === route)?.slug;
-      if (slug && supported && !reducedMotion && !isMobile) {
-        setFocusSlug(slug);
-        setTransitionRoute(route);
-        setTimeout(() => router.push(route), 1400);
-      } else {
-        router.push(route);
-      }
+      setTransitionRoute(route);
+      setTimeout(() => router.push(route), 1200);
     },
-    [businesses, supported, reducedMotion, isMobile, router]
+    [router]
   );
 
-  const hoveredBusiness = businesses.find((b) => b.slug === hoveredSlug) || null;
   const transitionBusiness = businesses.find((b) => b.route === transitionRoute);
   const transitionLayout = transitionBusiness ? WORLD_LAYOUT[transitionBusiness.slug] : null;
-  const use3D = supported && !reducedMotion && !isMobile;
 
   if (phase === "intro" && !isMobile) {
     return <IntroSequence onEnter={enterHub} onSkip={skipIntro} />;
@@ -93,8 +67,8 @@ export function HomeClient({ businesses }: HomeClientProps) {
   }
 
   return (
-    <div className="bg-[#080807]">
-      <div className="relative h-screen w-full overflow-hidden">
+    <div className="bg-[#050504]">
+      <div className="relative min-h-screen w-full">
         <MasterNav transparent />
 
         <AnimatePresence>
@@ -102,60 +76,24 @@ export function HomeClient({ businesses }: HomeClientProps) {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1.5 }}
-              className="absolute inset-0"
+              transition={{ duration: 1 }}
             >
-              {use3D ? (
-                <JWorldHub
-                  businesses={businesses}
-                  onEnterWorld={handleEnterWorld}
-                  onHoverWorld={setHoveredSlug}
-                  hoveredSlug={hoveredSlug}
-                  focusSlug={focusSlug}
-                  lowEnd={lowEnd}
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center bg-[#080807]">
-                  <span className="font-[family-name:var(--font-cinzel)] text-[10rem] text-gradient-gold">J</span>
-                </div>
-              )}
+              <CinematicHub businesses={businesses} onEnterWorld={handleEnterWorld} />
             </motion.div>
           )}
         </AnimatePresence>
 
-        <HubMasterCopy visible={hubReady && !hoveredSlug && !focusSlug} />
-        <FutureWorldLabel visible={hubReady && !hoveredSlug && !focusSlug} />
-
-        <div className="pointer-events-none absolute inset-0 z-10">
-          <WorldHoverPanel business={hoveredBusiness} onExplore={handleEnterWorld} />
-        </div>
-
-        {!hoveredSlug && !focusSlug && hubReady && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
-            className="absolute bottom-10 left-0 right-0 z-10 text-center"
-          >
-            <p className="text-[9px] tracking-[0.45em] uppercase text-white/20">
-              Hover a destination to explore
-            </p>
-          </motion.div>
-        )}
-
-        {/* Cinematic world entry transition */}
         <AnimatePresence>
           {transitionRoute && transitionBusiness && transitionLayout && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
               className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
             >
               <motion.div
-                initial={{ scale: 1.1, filter: "blur(0px)" }}
-                animate={{ scale: 1.35, filter: "blur(12px)" }}
-                transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                initial={{ scale: 1.05, filter: "blur(0px)" }}
+                animate={{ scale: 1.3, filter: "blur(14px)" }}
+                transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
                 className="absolute inset-0"
               >
                 <Image
@@ -165,16 +103,16 @@ export function HomeClient({ businesses }: HomeClientProps) {
                   className="object-cover"
                   priority
                 />
-                <div className="absolute inset-0 bg-black/50" />
+                <div className="absolute inset-0 bg-black/55" />
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
-                className="relative z-10 text-center px-6"
+                transition={{ delay: 0.35, duration: 0.75 }}
+                className="relative z-10 px-6 text-center"
               >
                 <p
-                  className="font-[family-name:var(--font-cinzel)] text-4xl tracking-[0.15em] md:text-6xl"
+                  className="font-[family-name:var(--font-cinzel)] text-4xl tracking-[0.12em] md:text-6xl"
                   style={{ color: transitionLayout.accent }}
                 >
                   {transitionLayout.label}
