@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { IntroSequence } from "@/components/3d/IntroSequence";
-import { Fallback2D } from "@/components/3d/Fallback2D";
+import { ScrollJourney } from "@/components/experience/ScrollJourney";
+import { MobileJourney } from "@/components/experience/MobileJourney";
+import { WorldHoverPanel, DistantLabels } from "@/components/experience/WorldHoverPanel";
 import { MasterNav } from "@/components/layout/MasterNav";
 import { SoundToggle } from "@/components/ui/SoundToggle";
 import { useWebGL } from "@/contexts/WebGLContext";
@@ -13,86 +15,122 @@ import type { BusinessWithTheme } from "@/lib/types";
 
 const JWorldHub = dynamic(
   () => import("@/components/3d/JWorldHub").then((m) => m.JWorldHub),
-  { ssr: false, loading: () => <div className="absolute inset-0 bg-black" /> }
+  { ssr: false, loading: () => <div className="absolute inset-0 bg-[#010101]" /> }
 );
 
 interface HomeClientProps {
   businesses: BusinessWithTheme[];
 }
 
+type Phase = "intro" | "hub";
+
 export function HomeClient({ businesses }: HomeClientProps) {
-  const [introComplete, setIntroComplete] = useState(false);
-  const [showExplore, setShowExplore] = useState(false);
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [hubReady, setHubReady] = useState(false);
+  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const { supported, reducedMotion } = useWebGL();
   const router = useRouter();
 
-  const handleIntroComplete = useCallback(() => {
-    setIntroComplete(true);
-    setTimeout(() => setShowExplore(true), 500);
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    const skipped = sessionStorage.getItem("j-skip-intro");
+    if (skipped === "1") setPhase("hub");
   }, []);
+
+  const enterHub = useCallback(() => {
+    setPhase("hub");
+    setTimeout(() => setHubReady(true), 800);
+  }, []);
+
+  const skipIntro = useCallback(() => {
+    sessionStorage.setItem("j-skip-intro", "1");
+    enterHub();
+  }, [enterHub]);
 
   const handleEnterWorld = useCallback(
     (route: string) => router.push(route),
     [router]
   );
 
-  const use3D = supported && !reducedMotion;
+  const hoveredBusiness = businesses.find((b) => b.slug === hoveredSlug) || null;
+  const use3D = supported && !reducedMotion && !isMobile;
 
-  if (!introComplete) {
-    return <IntroSequence onComplete={handleIntroComplete} />;
+  if (phase === "intro" && !isMobile) {
+    return <IntroSequence onEnter={enterHub} onSkip={skipIntro} />;
   }
 
-  if (!use3D) {
+  if (isMobile) {
     return (
       <>
-        <MasterNav transparent />
-        <Fallback2D businesses={businesses} />
+        <MobileJourney
+          businesses={businesses}
+          onEnterWorld={handleEnterWorld}
+          onExplore={skipIntro}
+        />
         <SoundToggle />
       </>
     );
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
-      <MasterNav transparent />
-      <JWorldHub businesses={businesses} onEnterWorld={handleEnterWorld} />
+    <div className="bg-[#010101]">
+      {/* Hub — pinned viewport */}
+      <div className="relative h-screen w-full overflow-hidden">
+        <MasterNav transparent />
 
-      {showExplore && (
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10"
-        >
-          <div className="bg-gradient-to-t from-black via-black/80 to-transparent px-6 pb-12 pt-32">
-            <div id="explore" className="pointer-events-auto mx-auto max-w-4xl text-center">
-              <p className="text-xs tracking-[0.3em] uppercase text-white/40">
-                Explore J
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {businesses.map((biz) => (
-                  <button
-                    key={biz.id}
-                    onClick={() => handleEnterWorld(biz.route)}
-                    className="group rounded-xl border border-white/10 bg-white/5 px-4 py-4 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10"
-                  >
-                    <p className="text-sm font-light text-white">{biz.name}</p>
-                    <p className="mt-1 text-xs text-white/40">{biz.tagline}</p>
-                    <span className="mt-2 inline-block text-[10px] tracking-[0.2em] uppercase text-white/30 group-hover:text-white/60">
-                      Enter World
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-8 text-[10px] tracking-wider text-white/20">
-                More J worlds are coming.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
+        <AnimatePresence>
+          {phase === "hub" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.5 }}
+              className="absolute inset-0"
+            >
+              {use3D ? (
+                <JWorldHub
+                  businesses={businesses}
+                  onEnterWorld={handleEnterWorld}
+                  onHoverWorld={setHoveredSlug}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <span className="font-[family-name:var(--font-cinzel)] text-[10rem] text-gradient-gold">J</span>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <SoundToggle />
+        <DistantLabels businesses={businesses} visible={hubReady && !hoveredSlug} />
+
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+          <WorldHoverPanel business={hoveredBusiness} onExplore={handleEnterWorld} />
+        </div>
+
+        {!hoveredSlug && hubReady && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.5 }}
+            className="absolute bottom-10 left-0 right-0 z-10 text-center"
+          >
+            <p className="text-[9px] tracking-[0.45em] uppercase text-white/25">
+              Scroll to explore worlds
+            </p>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="mx-auto mt-3 h-6 w-px bg-white/20"
+            />
+          </motion.div>
+        )}
+
+        <SoundToggle />
+      </div>
+
+      {/* Cinematic scroll journey */}
+      <ScrollJourney businesses={businesses} onEnterWorld={handleEnterWorld} />
     </div>
   );
 }

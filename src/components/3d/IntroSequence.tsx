@@ -1,98 +1,133 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
+import { MagneticButton } from "@/components/ui/MagneticButton";
+import { useWebGL } from "@/contexts/WebGLContext";
+
+const IntroJ3D = dynamic(() => import("./IntroJ3D").then((m) => m.IntroJ3D), {
+  ssr: false,
+});
 
 interface IntroSequenceProps {
-  onComplete: () => void;
+  onEnter: () => void;
+  onSkip: () => void;
 }
 
-export function IntroSequence({ onComplete }: IntroSequenceProps) {
+export function IntroSequence({ onEnter, onSkip }: IntroSequenceProps) {
   const [stage, setStage] = useState(0);
+  const [exiting, setExiting] = useState(false);
+  const { supported, reducedMotion } = useWebGL();
+  const use3D = supported && !reducedMotion;
 
   useEffect(() => {
+    if (reducedMotion) {
+      setStage(4);
+      return;
+    }
     const timers = [
-      setTimeout(() => setStage(1), 800),
-      setTimeout(() => setStage(2), 2000),
-      setTimeout(() => setStage(3), 3500),
-      setTimeout(() => onComplete(), 5000),
+      setTimeout(() => setStage(1), 1000),
+      setTimeout(() => setStage(2), 2600),
+      setTimeout(() => setStage(3), 4000),
+      setTimeout(() => setStage(4), 5400),
     ];
     return () => timers.forEach(clearTimeout);
-  }, [onComplete]);
+  }, [reducedMotion]);
+
+  const handleEnter = () => {
+    setExiting(true);
+    setTimeout(onEnter, 1200);
+  };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black">
-      <AnimatePresence mode="wait">
-        {stage < 3 && (
-          <motion.div
-            key="intro"
-            className="flex flex-col items-center"
-            exit={{ opacity: 0, scale: 1.5 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5, filter: "blur(20px)" }}
-              animate={
-                stage >= 1
-                  ? { opacity: 1, scale: 1, filter: "blur(0px)" }
-                  : {}
-              }
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              className="relative"
-            >
-              <span className="text-[12rem] font-extralight leading-none tracking-[0.2em] text-white md:text-[16rem]">
-                J
-              </span>
-              <div className="absolute inset-0 animate-pulse bg-gradient-to-t from-purple-500/20 to-transparent blur-3xl" />
-            </motion.div>
+    <div className="fixed inset-0 z-[200] overflow-hidden bg-[#010101]">
+      {use3D && <IntroJ3D />}
 
-            {stage >= 2 && (
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="mt-8 text-xs tracking-[0.4em] uppercase text-white/50"
-              >
-                One Vision. Many Possibilities.
-              </motion.p>
-            )}
-          </motion.div>
-        )}
+      {/* Fallback static J */}
+      {!use3D && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="font-[family-name:var(--font-cinzel)] text-[12rem] text-gradient-gold md:text-[16rem]">J</span>
+        </div>
+      )}
 
-        {stage === 3 && (
+      {/* Vignette */}
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{ background: "radial-gradient(ellipse at center, transparent 30%, #010101 85%)" }}
+      />
+
+      <AnimatePresence>
+        {!exiting && (
           <motion.div
-            key="transition"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-black"
+            exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
-          />
+            className="relative z-20 flex min-h-screen flex-col items-center justify-end pb-24 md:justify-center md:pb-0"
+          >
+            {/* Text overlays — positioned below 3D J on desktop */}
+            <div className="mt-auto flex flex-col items-center px-6 md:mt-[38vh]">
+              <AnimatePresence mode="wait">
+                {stage >= 2 && (
+                  <motion.p
+                    key="vision"
+                    initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                    className="text-center font-[family-name:var(--font-cinzel)] text-sm tracking-[0.6em] text-white/70 md:text-base"
+                  >
+                    ONE VISION.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {stage >= 3 && (
+                  <motion.p
+                    key="possibilities"
+                    initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+                    className="mt-4 text-center font-[family-name:var(--font-cinzel)] text-sm tracking-[0.6em] text-white/50 md:text-base"
+                  >
+                    MANY POSSIBILITIES.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {stage >= 4 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="mt-14 flex flex-col items-center gap-6"
+                  >
+                    <MagneticButton onClick={handleEnter} dataCursor="enter">
+                      Enter J Space →
+                    </MagneticButton>
+                    <button
+                      onClick={onSkip}
+                      className="text-[9px] tracking-[0.35em] uppercase text-white/25 transition-colors hover:text-white/50"
+                      data-cursor="explore"
+                    >
+                      Skip intro
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Particle overlay */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute h-1 w-1 rounded-full bg-white/30"
-            initial={{
-              x: `${Math.random() * 100}%`,
-              y: `${Math.random() * 100}%`,
-              opacity: 0,
-            }}
-            animate={{
-              opacity: [0, 0.6, 0],
-              y: [`${Math.random() * 100}%`, `${Math.random() * 100 - 20}%`],
-            }}
-            transition={{
-              duration: 3 + Math.random() * 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
+      {exiting && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 z-30 bg-[#010101]"
+          transition={{ duration: 1.2 }}
+        />
+      )}
     </div>
   );
 }
