@@ -42,7 +42,7 @@ Replace with your actual Railway hostname from **Settings → Networking → Pub
 
 ## Step 4: Redeploy
 
-After saving variables, Railway redeploys automatically. Check **Deployments** tab — build should run `prisma migrate deploy` + seed.
+After saving variables, Railway redeploys automatically. Check **Deployments** tab — build runs `next build`; migrations and seed run at **start** when the app can reach Postgres on the private network.
 
 ## Step 5: Custom domain (jgroup.space)
 
