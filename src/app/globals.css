@@ -81,6 +81,39 @@ body.custom-cursor-active button {
   filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.5));
 }
 
+/* Hub & intro — cinematic gold J */
+.hub-j-hero-wrap {
+  transform-style: preserve-3d;
+}
+
+.hub-j-hero {
+  background: linear-gradient(
+    125deg,
+    #faf6ee 0%,
+    #e8d48b 18%,
+    #c9a227 42%,
+    #fff9e8 52%,
+    #b8941f 72%,
+    #f5f0e8 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: hub-gold-shimmer 9s ease-in-out infinite;
+  filter: drop-shadow(0 0 40px rgba(201, 162, 39, 0.25));
+}
+
+@keyframes hub-gold-shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+.world-portal-card:focus-visible {
+  outline: 2px solid rgba(201, 162, 39, 0.5);
+  outline-offset: 4px;
+}
+
 .text-gradient-violet {
   background: linear-gradient(135deg, #e9d5ff 0%, #8b5cf6 50%, #c084fc 100%);
   -webkit-background-clip: text;

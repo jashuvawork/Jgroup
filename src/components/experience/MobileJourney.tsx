@@ -27,7 +27,7 @@ export function MobileJourney({ businesses, onEnterWorld, onExplore }: MobileJou
         <motion.p
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="font-[family-name:var(--font-cinzel)] text-[7rem] font-semibold text-gradient-gold"
+          className="hub-j-hero font-[family-name:var(--font-cinzel)] text-[7rem] font-semibold leading-none"
         >
           J
         </motion.p>
