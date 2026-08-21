@@ -127,6 +127,9 @@ export function FoodsWorld({ business }: { business: BusinessData }) {
             <MagneticButton href="#menu" variant="outline" dataCursor="taste">
               View Menu
             </MagneticButton>
+            <MagneticButton href="#catering" variant="outline" dataCursor="taste">
+              Catering
+            </MagneticButton>
           </motion.div>
         </div>
       </section>
@@ -153,10 +156,13 @@ export function FoodsWorld({ business }: { business: BusinessData }) {
         </div>
       </section>
 
-      {/* Menu */}
+      {/* Best sellers */}
       <section id="menu" className="px-6 py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="text-center font-[family-name:var(--font-cormorant)] text-4xl text-white md:text-5xl">
+            Best Sellers
+          </h2>
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((p) => (
               <div key={p.id} className="overflow-hidden rounded-2xl border border-white/[0.06]">
                 {p.image && (
@@ -171,6 +177,44 @@ export function FoodsWorld({ business }: { business: BusinessData }) {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Family & party combos */}
+      <section className="px-6 py-24">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="font-[family-name:var(--font-cormorant)] text-4xl text-white md:text-5xl">
+            Family &amp; Party Combos
+          </h2>
+          <p className="mt-4 text-white/45">Perfect for gatherings, celebrations, and shared meals.</p>
+          <div className="mt-12 grid gap-4 sm:grid-cols-2">
+            {business.products.filter((p) => p.isCombo).slice(0, 4).map((p) => (
+              <div key={p.id} className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.02] px-6 py-5">
+                <div className="text-left">
+                  <p className="text-white">{p.name}</p>
+                  <p className="mt-1 text-sm text-white/40">{p.description}</p>
+                </div>
+                <p className="text-xl" style={{ color: accent }}>{formatCurrency(p.price)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Catering */}
+      <section id="catering" className="px-6 py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="font-[family-name:var(--font-cormorant)] text-4xl text-white md:text-5xl">
+            Catering
+          </h2>
+          <p className="mt-4 text-lg text-white/50">
+            Weddings, corporate events, and large gatherings — authentic Andhra cuisine at scale.
+          </p>
+          <div className="mt-12">
+            <MagneticButton href="/contact?business=foods&type=catering" dataCursor="taste">
+              Request Catering →
+            </MagneticButton>
           </div>
         </div>
       </section>

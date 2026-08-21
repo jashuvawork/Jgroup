@@ -1,116 +1,67 @@
 "use client";
 
 import { useRef, Suspense } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Text3D, Center, MeshReflectorMaterial, Float } from "@react-three/drei";
+import { Text3D, Center } from "@react-three/drei";
 import * as THREE from "three";
-import { ParticleField } from "./ParticleField";
 
-const GOLD = new THREE.Color("#c9a227");
-const GOLD_EMISSIVE = new THREE.Color("#8a6d12");
+const SCULPTURE_METAL = new THREE.Color("#1a1a18");
+const EDGE_GOLD = new THREE.Color("#8a7340");
 
 export function CentralJ() {
-  const ring1Ref = useRef<THREE.Mesh>(null);
-  const ring2Ref = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (ring1Ref.current) {
-      ring1Ref.current.rotation.x = t * 0.06;
-      ring1Ref.current.rotation.y = t * 0.04;
-    }
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.x = -t * 0.045;
-      ring2Ref.current.rotation.z = t * 0.07;
-    }
-  });
+  const sculptureRef = useRef<THREE.Group>(null);
 
   return (
-    <group>
-      {/* Cinematic lighting */}
-      <spotLight
-        position={[4, 8, 6]}
-        angle={0.35}
-        penumbra={0.8}
-        intensity={3}
-        color="#fff8e7"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-      />
-      <spotLight position={[-5, 3, 4]} angle={0.4} penumbra={1} intensity={1.2} color="#8b5cf6" />
-      <pointLight position={[0, -2, 4]} intensity={0.6} color="#c9a227" distance={12} />
-      <ambientLight intensity={0.15} />
-
-      {/* Reflective platform */}
-      <mesh position={[0, -2.35, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[4.5, 64]} />
-        <MeshReflectorMaterial
-          blur={[280, 100]}
-          resolution={512}
-          mixBlur={0.8}
-          mixStrength={0.35}
-          roughness={0.85}
-          depthScale={0.6}
-          minDepthThreshold={0.4}
-          maxDepthThreshold={1.4}
-          color="#0a0a0a"
-          metalness={0.6}
-          mirror={0.4}
-        />
+    <group ref={sculptureRef}>
+      {/* Pedestal — dark stone */}
+      <mesh position={[0, -2.05, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.9, 1.1, 0.5, 32]} />
+        <meshStandardMaterial color="#121210" roughness={0.75} metalness={0.15} />
+      </mesh>
+      <mesh position={[0, -1.78, 0]} castShadow>
+        <cylinderGeometry args={[1.15, 1.15, 0.06, 32]} />
+        <meshStandardMaterial color="#2a2826" metalness={0.7} roughness={0.4} />
       </mesh>
 
-      {/* Orbital rings — thin brushed metal */}
-      <mesh ref={ring1Ref}>
-        <torusGeometry args={[3.2, 0.012, 8, 128]} />
-        <meshStandardMaterial color="#c9a227" metalness={0.95} roughness={0.25} transparent opacity={0.5} />
-      </mesh>
-      <mesh ref={ring2Ref} rotation={[Math.PI / 2.5, 0.3, 0]}>
-        <torusGeometry args={[3.6, 0.008, 8, 128]} />
-        <meshStandardMaterial color="#a78bfa" metalness={0.9} roughness={0.3} transparent opacity={0.35} />
-      </mesh>
-
-      {/* Extruded metallic J */}
-      <Float speed={0.4} rotationIntensity={0} floatIntensity={0.04}>
-        <Suspense fallback={
-          <mesh>
+      {/* Physical J sculpture — dark brushed metal */}
+      <Suspense
+        fallback={
+          <mesh position={[0, 0.15, 0]}>
             <boxGeometry args={[0.5, 2.5, 0.5]} />
-            <meshStandardMaterial color="#c9a227" metalness={0.9} roughness={0.2} />
+            <meshStandardMaterial color="#1a1a18" metalness={0.9} roughness={0.4} />
           </mesh>
-        }>
-          <Center position={[0, 0.2, 0]}>
-            <Text3D
-              font="/fonts/gentilis_bold.typeface.json"
-              size={2.2}
-              height={0.35}
-              bevelEnabled
-              bevelThickness={0.04}
-              bevelSize={0.02}
-              bevelSegments={8}
-              curveSegments={16}
-              castShadow
-              receiveShadow
-            >
-              J
-              <meshStandardMaterial
-                color={GOLD}
-                emissive={GOLD_EMISSIVE}
-                emissiveIntensity={0.15}
-                metalness={0.92}
-                roughness={0.18}
-                envMapIntensity={1.2}
-              />
-            </Text3D>
-          </Center>
-        </Suspense>
-      </Float>
+        }
+      >
+        <Center position={[0, 0.15, 0]}>
+          <Text3D
+            font="/fonts/gentilis_bold.typeface.json"
+            size={2.4}
+            height={0.28}
+            bevelEnabled
+            bevelThickness={0.035}
+            bevelSize={0.018}
+            bevelSegments={6}
+            curveSegments={20}
+            castShadow
+            receiveShadow
+          >
+            J
+            <meshStandardMaterial
+              color={SCULPTURE_METAL}
+              metalness={0.92}
+              roughness={0.38}
+              envMapIntensity={0.9}
+              emissive={EDGE_GOLD}
+              emissiveIntensity={0.06}
+            />
+          </Text3D>
+        </Center>
+      </Suspense>
 
-      {/* Ground glow */}
-      <mesh position={[0, -2.34, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[1.8, 64]} />
-        <meshBasicMaterial color="#c9a227" transparent opacity={0.08} />
+      {/* Soft contact shadow under sculpture */}
+      <mesh position={[0, -2.36, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.4, 32]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.35} />
       </mesh>
-
-      <ParticleField count={200} color="#8b5cf6" accentColor="#c9a227" size={0.008} speed={0.15} />
     </group>
   );
 }

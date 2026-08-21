@@ -3,24 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
-type CursorMode = "default" | "enter" | "taste" | "celebrate" | "impact" | "explore";
-
-const LABELS: Record<CursorMode, string> = {
-  default: "",
-  enter: "ENTER",
-  taste: "TASTE",
-  celebrate: "CELEBRATE",
-  impact: "IMPACT",
-  explore: "EXPLORE",
-};
-
 export function CustomCursor() {
-  const [mode, setMode] = useState<CursorMode>("default");
+  const [interactive, setInteractive] = useState(false);
   const [visible, setVisible] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 400, damping: 35 });
-  const sy = useSpring(y, { stiffness: 400, damping: 35 });
+  const sx = useSpring(x, { stiffness: 500, damping: 40 });
+  const sy = useSpring(y, { stiffness: 500, damping: 40 });
 
   useEffect(() => {
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
@@ -36,8 +25,8 @@ export function CustomCursor() {
 
     const onOver = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      const el = t.closest("[data-cursor]") as HTMLElement | null;
-      setMode((el?.dataset.cursor as CursorMode) || "default");
+      const el = t.closest("a, button, [data-cursor], [role='button']");
+      setInteractive(!!el);
     };
 
     window.addEventListener("mousemove", move);
@@ -57,23 +46,18 @@ export function CustomCursor() {
 
   if (!visible) return null;
 
-  const active = mode !== "default";
-  const size = active ? 72 : 12;
+  const size = interactive ? 36 : 8;
 
   return (
     <motion.div
-      className="pointer-events-none fixed left-0 top-0 z-[9999] hidden md:flex items-center justify-center"
+      className="pointer-events-none fixed left-0 top-0 z-[9999] hidden md:block"
       style={{ x: sx, y: sy, translateX: "-50%", translateY: "-50%" }}
     >
       <motion.div
         animate={{ width: size, height: size }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="flex items-center justify-center rounded-full border border-white/30 bg-white/5 backdrop-blur-sm"
-      >
-        {active && (
-          <span className="text-[8px] tracking-[0.25em] text-white/80">{LABELS[mode]}</span>
-        )}
-      </motion.div>
+        transition={{ type: "spring", stiffness: 400, damping: 28 }}
+        className="rounded-full border border-white/25 bg-white/[0.04]"
+      />
     </motion.div>
   );
 }

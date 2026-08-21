@@ -5,16 +5,27 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 interface WebGLContextType {
   supported: boolean;
   reducedMotion: boolean;
+  lowEnd: boolean;
 }
 
 const WebGLContext = createContext<WebGLContextType>({
   supported: true,
   reducedMotion: false,
+  lowEnd: false,
 });
+
+function detectLowEnd(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const cores = navigator.hardwareConcurrency ?? 4;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+  return coarse || cores <= 4 || memory <= 4;
+}
 
 export function WebGLProvider({ children }: { children: ReactNode }) {
   const [supported, setSupported] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [lowEnd, setLowEnd] = useState(false);
 
   useEffect(() => {
     try {
@@ -25,6 +36,8 @@ export function WebGLProvider({ children }: { children: ReactNode }) {
       setSupported(false);
     }
 
+    setLowEnd(detectLowEnd());
+
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
@@ -33,7 +46,7 @@ export function WebGLProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <WebGLContext.Provider value={{ supported, reducedMotion }}>
+    <WebGLContext.Provider value={{ supported, reducedMotion, lowEnd }}>
       {children}
     </WebGLContext.Provider>
   );
