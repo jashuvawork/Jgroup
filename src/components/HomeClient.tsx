@@ -4,17 +4,25 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { IntroSequence } from "@/components/3d/IntroSequence";
 import { Fallback2D } from "@/components/3d/Fallback2D";
 import { MasterNav } from "@/components/layout/MasterNav";
 import { SoundToggle } from "@/components/ui/SoundToggle";
+import { SectionLabel } from "@/components/ui/Premium";
 import { useWebGL } from "@/contexts/WebGLContext";
 import type { BusinessWithTheme } from "@/lib/types";
 
 const JWorldHub = dynamic(
   () => import("@/components/3d/JWorldHub").then((m) => m.JWorldHub),
-  { ssr: false, loading: () => <div className="absolute inset-0 bg-black" /> }
+  { ssr: false, loading: () => <div className="absolute inset-0 bg-[#030303]" /> }
 );
+
+const EMOJI_MAP: Record<string, string> = {
+  "j-surprise-events": "🎉",
+  "j-foods": "🍽️",
+  "j-foundation": "❤️",
+};
 
 interface HomeClientProps {
   businesses: BusinessWithTheme[];
@@ -23,12 +31,13 @@ interface HomeClientProps {
 export function HomeClient({ businesses }: HomeClientProps) {
   const [introComplete, setIntroComplete] = useState(false);
   const [showExplore, setShowExplore] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const { supported, reducedMotion } = useWebGL();
   const router = useRouter();
 
   const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
-    setTimeout(() => setShowExplore(true), 500);
+    setTimeout(() => setShowExplore(true), 600);
   }, []);
 
   const handleEnterWorld = useCallback(
@@ -53,40 +62,81 @@ export function HomeClient({ businesses }: HomeClientProps) {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
+    <div className="relative h-screen w-full overflow-hidden bg-[#030303]">
       <MasterNav transparent />
       <JWorldHub businesses={businesses} onEnterWorld={handleEnterWorld} />
 
       {showExplore && (
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
+          transition={{ delay: 0.3, duration: 1, ease: [0.23, 1, 0.32, 1] }}
           className="pointer-events-none absolute inset-x-0 bottom-0 z-10"
         >
-          <div className="bg-gradient-to-t from-black via-black/80 to-transparent px-6 pb-12 pt-32">
-            <div id="explore" className="pointer-events-auto mx-auto max-w-4xl text-center">
-              <p className="text-xs tracking-[0.3em] uppercase text-white/40">
-                Explore J
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {businesses.map((biz) => (
-                  <button
+          <div className="bg-gradient-to-t from-[#030303] via-[#030303]/95 to-transparent px-6 pb-10 pt-40">
+            <div id="explore" className="pointer-events-auto mx-auto max-w-5xl">
+              <SectionLabel>Explore J</SectionLabel>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                {businesses.map((biz, i) => (
+                  <motion.button
                     key={biz.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + i * 0.12, duration: 0.6 }}
                     onClick={() => handleEnterWorld(biz.route)}
-                    className="group rounded-xl border border-white/10 bg-white/5 px-4 py-4 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10"
+                    onMouseEnter={() => setHoveredCard(biz.id)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    className="card-glow group relative overflow-hidden rounded-2xl p-5 text-left"
+                    style={{
+                      background: hoveredCard === biz.id
+                        ? `linear-gradient(135deg, ${biz.theme?.primaryColor}18, transparent)`
+                        : undefined,
+                    }}
                   >
-                    <p className="text-sm font-light text-white">{biz.name}</p>
-                    <p className="mt-1 text-xs text-white/40">{biz.tagline}</p>
-                    <span className="mt-2 inline-block text-[10px] tracking-[0.2em] uppercase text-white/30 group-hover:text-white/60">
-                      Enter World
-                    </span>
-                  </button>
+                    {biz.heroImage && (
+                      <div className="absolute inset-0 opacity-20 transition-opacity group-hover:opacity-30">
+                        <Image src={biz.heroImage} alt="" fill className="object-cover" sizes="300px" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent" />
+                      </div>
+                    )}
+
+                    <div className="relative">
+                      <span className="text-xl">{EMOJI_MAP[biz.slug] || "✨"}</span>
+                      <p className="mt-3 font-[family-name:var(--font-cinzel)] text-sm tracking-wide text-white">
+                        {biz.name}
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-white/40">
+                        {biz.tagline}
+                      </p>
+                      <div className="mt-4 flex items-center gap-2">
+                        <span
+                          className="text-[9px] tracking-[0.25em] uppercase transition-colors"
+                          style={{ color: biz.theme?.primaryColor || "#c9a227" }}
+                        >
+                          Enter World
+                        </span>
+                        <motion.span
+                          animate={{ x: hoveredCard === biz.id ? 4 : 0 }}
+                          className="text-[10px]"
+                          style={{ color: biz.theme?.primaryColor || "#c9a227" }}
+                        >
+                          →
+                        </motion.span>
+                      </div>
+                    </div>
+                  </motion.button>
                 ))}
               </div>
-              <p className="mt-8 text-[10px] tracking-wider text-white/20">
-                More J worlds are coming.
-              </p>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+                className="mt-10 text-center text-[9px] tracking-[0.4em] uppercase text-white/15"
+              >
+                More J worlds are coming
+              </motion.p>
             </div>
           </div>
         </motion.div>

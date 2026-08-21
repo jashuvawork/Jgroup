@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
+import { Playfair_Display, Cormorant_Garamond, Source_Sans_3, Cinzel, Syne } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -22,6 +22,20 @@ const sourceSans = Source_Sans_3({
   display: "swap",
 });
 
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-syne",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "J — One Vision. Many Possibilities.",
   description:
@@ -37,9 +51,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${cormorant.variable} ${sourceSans.variable} h-full`}
+      className={`${playfair.variable} ${cormorant.variable} ${sourceSans.variable} ${cinzel.variable} ${syne.variable} h-full`}
     >
-      <body className="min-h-full bg-black text-white antialiased">
+      <body className="grain min-h-full bg-[#030303] text-white antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

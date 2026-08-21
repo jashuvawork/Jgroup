@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { SectionLabel, AmbientOrbs } from "@/components/ui/Premium";
 import type { BusinessWithTheme } from "@/lib/types";
 
 interface Fallback2DProps {
@@ -17,71 +18,83 @@ const EMOJI_MAP: Record<string, string> = {
 
 export function Fallback2D({ businesses }: Fallback2DProps) {
   return (
-    <div className="min-h-screen bg-black">
-      <div className="relative flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="relative min-h-screen overflow-hidden bg-[#030303]">
+      <AmbientOrbs />
+
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-24 pb-16">
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="mb-16 text-center"
+          transition={{ duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+          className="mb-20 text-center"
         >
-          <h1 className="text-8xl font-extralight tracking-[0.3em] text-white md:text-9xl">
-            J
-          </h1>
-          <p className="mt-4 text-xs tracking-[0.4em] uppercase text-white/40">
-            One Vision. Many Possibilities.
-          </p>
+          <div className="relative inline-block">
+            <h1 className="font-[family-name:var(--font-cinzel)] text-[7rem] font-medium tracking-[0.12em] text-gradient-gold md:text-[9rem]">
+              J
+            </h1>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-t from-amber-500/20 via-violet-500/10 to-transparent blur-3xl" />
+          </div>
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+            <p className="text-[10px] tracking-[0.45em] uppercase text-white/35">
+              One Vision. Many Possibilities.
+            </p>
+          </div>
         </motion.div>
 
         <div id="explore" className="w-full max-w-5xl">
-          <h2 className="mb-12 text-center text-xs tracking-[0.3em] uppercase text-white/30">
-            Explore J
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+          <SectionLabel>Explore J</SectionLabel>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
             {businesses.map((biz, i) => (
               <motion.div
                 key={biz.id}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + i * 0.15, duration: 0.6 }}
+                transition={{ delay: 0.4 + i * 0.15, duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
               >
                 <Link href={biz.route} className="group block">
-                  <div
-                    className="relative overflow-hidden rounded-2xl border border-white/10 transition-all duration-500 group-hover:border-white/20 group-hover:scale-[1.02]"
-                    style={{
-                      background: `linear-gradient(135deg, ${biz.theme?.primaryColor}15, ${biz.theme?.secondaryColor}10)`,
-                    }}
-                  >
+                  <div className="card-glow relative overflow-hidden rounded-2xl">
                     {biz.heroImage && (
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-52 overflow-hidden">
                         <Image
                           src={biz.heroImage}
                           alt={biz.name}
                           fill
-                          className="object-cover opacity-60 transition-opacity group-hover:opacity-80"
+                          className="object-cover transition-all duration-700 group-hover:scale-110"
                           sizes="(max-width: 768px) 100vw, 33vw"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-[#030303]/60 to-transparent" />
+                        <div
+                          className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                          style={{ background: `linear-gradient(135deg, ${biz.theme?.primaryColor}20, transparent)` }}
+                        />
                       </div>
                     )}
-                    <div className="p-6">
+                    <div className="relative p-6">
                       <span className="text-2xl">{EMOJI_MAP[biz.slug] || "✨"}</span>
-                      <h3 className="mt-2 text-lg font-light text-white">{biz.name}</h3>
-                      <p className="mt-1 text-sm text-white/50">{biz.tagline}</p>
-                      <span
-                        className="mt-4 inline-block text-xs tracking-[0.2em] uppercase transition-colors"
-                        style={{ color: biz.theme?.primaryColor || "#fff" }}
-                      >
-                        Enter World →
-                      </span>
+                      <h3 className="mt-3 font-[family-name:var(--font-cinzel)] text-lg tracking-wide text-white">
+                        {biz.name}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-white/45">{biz.tagline}</p>
+                      <div className="mt-5 flex items-center gap-2">
+                        <span
+                          className="text-[10px] tracking-[0.25em] uppercase"
+                          style={{ color: biz.theme?.primaryColor || "#c9a227" }}
+                        >
+                          Enter World
+                        </span>
+                        <span className="text-white/20 transition-transform group-hover:translate-x-1">→</span>
+                      </div>
                     </div>
                   </div>
                 </Link>
               </motion.div>
             ))}
           </div>
-          <p className="mt-12 text-center text-xs tracking-wider text-white/20">
-            More J worlds are coming.
+
+          <p className="mt-14 text-center text-[9px] tracking-[0.4em] uppercase text-white/15">
+            More J worlds are coming
           </p>
         </div>
       </div>
