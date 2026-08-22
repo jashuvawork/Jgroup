@@ -57,6 +57,14 @@ export function Footer() {
           >
             {CONTACT.phone}
           </a>
+          <a
+            href={CONTACT.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs tracking-wider text-white/35 transition-colors hover:text-white/60"
+          >
+            {CONTACT.instagramHandle}
+          </a>
         </div>
 
         <div className="section-divider mx-auto mt-10 max-w-xs" />

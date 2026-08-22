@@ -89,7 +89,7 @@ async function main() {
     { key: "whatsapp", value: "918341068133" },
     { key: "email", value: "hello@jgroup.space" },
     { key: "location", value: "Amalapuram, Andhra Pradesh, India" },
-    { key: "instagram", value: "https://instagram.com/jbrand" },
+    { key: "instagram", value: "https://www.instagram.com/j_surprise_events_/" },
     { key: "facebook", value: "https://facebook.com/jbrand" },
     { key: "youtube", value: "https://youtube.com/jbrand" },
   ];
