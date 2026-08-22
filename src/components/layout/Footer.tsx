@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACT } from "@/lib/contact";
 
 export function Footer() {
   const links = [
@@ -42,6 +43,23 @@ export function Footer() {
         </div>
 
         <div className="section-divider mx-auto mt-16 max-w-xs" />
+
+        <div className="mt-10 flex flex-col items-center gap-4 text-center">
+          <a
+            href={CONTACT.whatsappUrl}
+            className="text-sm tracking-wider text-white/50 transition-colors hover:text-amber-400/80"
+          >
+            WhatsApp {CONTACT.phone}
+          </a>
+          <a
+            href={CONTACT.phoneTel}
+            className="text-xs tracking-wider text-white/35 transition-colors hover:text-white/60"
+          >
+            {CONTACT.phone}
+          </a>
+        </div>
+
+        <div className="section-divider mx-auto mt-10 max-w-xs" />
 
         <div className="mt-10 flex flex-col items-center justify-between gap-6 sm:flex-row">
           <p className="text-[10px] tracking-wider text-white/20">

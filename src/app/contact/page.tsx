@@ -2,8 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { MasterNav } from "@/components/layout/MasterNav";
-import { Footer } from "@/components/layout/Footer";
+import { CONTACT } from "@/lib/contact";
 
 const BUSINESS_OPTIONS = [
   { value: "", label: "General J Enquiry" },
@@ -139,10 +138,10 @@ export default function ContactPage() {
               <p className="mt-6 text-white/40">We&apos;d love to hear from you. Select your J business or send a general enquiry.</p>
               <div className="mt-12 space-y-8">
                 {[
-                  { label: "Phone", value: "+91 98765 43210" },
-                  { label: "WhatsApp", value: "+91 98765 43210", href: "https://wa.me/919876543210" },
-                  { label: "Email", value: "hello@jbrand.com" },
-                  { label: "Location", value: "Hyderabad, Telangana, India" },
+                  { label: "Phone", value: CONTACT.phone, href: CONTACT.phoneTel },
+                  { label: "WhatsApp", value: CONTACT.phone, href: CONTACT.whatsappUrl },
+                  { label: "Email", value: CONTACT.email },
+                  { label: "Location", value: CONTACT.location },
                 ].map((item) => (
                   <div key={item.label}>
                     <p className="text-[10px] tracking-[0.25em] uppercase text-white/25">{item.label}</p>

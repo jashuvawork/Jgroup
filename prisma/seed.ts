@@ -85,10 +85,10 @@ async function main() {
     { key: "site_name", value: "J" },
     { key: "site_url", value: "https://jgroup.space" },
     { key: "tagline", value: "One Vision. Many Possibilities." },
-    { key: "phone", value: "+91 98765 43210" },
-    { key: "whatsapp", value: "+919876543210" },
-    { key: "email", value: "hello@jbrand.com" },
-    { key: "location", value: "Hyderabad, Telangana, India" },
+    { key: "phone", value: "+91 83410 68133" },
+    { key: "whatsapp", value: "918341068133" },
+    { key: "email", value: "hello@jgroup.space" },
+    { key: "location", value: "Amalapuram, Andhra Pradesh, India" },
     { key: "instagram", value: "https://instagram.com/jbrand" },
     { key: "facebook", value: "https://facebook.com/jbrand" },
     { key: "youtube", value: "https://youtube.com/jbrand" },
@@ -105,12 +105,17 @@ async function main() {
   // J Surprise Events
   const eventsBusiness = await prisma.business.upsert({
     where: { slug: "j-surprise-events" },
-    update: {},
+    update: {
+      description:
+        "Premium surprise planning for birthdays, proposals, weddings, flash mobs, car decorations, and every celebration. Every surprise, made special.",
+      tagline: "We Create Moments. You Cherish Forever.",
+    },
     create: {
       name: "J Surprise Events",
       slug: "j-surprise-events",
-      description: "We create moments you'll never forget.",
-      tagline: "We Turn Moments Into Memories.",
+      description:
+        "Premium surprise planning for birthdays, proposals, weddings, flash mobs, car decorations, and every celebration. Every surprise, made special.",
+      tagline: "We Create Moments. You Cherish Forever.",
       category: "events",
       route: "/j-surprise-events",
       status: "active",
@@ -132,31 +137,158 @@ async function main() {
   });
 
   const eventServices = [
-    { name: "Birthday Decorations", description: "Magical birthday setups that surprise and delight", price: 4999, category: "birthday", image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80" },
-    { name: "Surprise Proposals", description: "Romantic setups for the perfect 'yes'", price: 14999, category: "proposal", image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80" },
-    { name: "Anniversary Celebrations", description: "Celebrate love with elegant decorations", price: 7999, category: "anniversary", image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80" },
-    { name: "Wedding Events", description: "Complete wedding decoration and planning", price: 49999, category: "wedding", image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80" },
-    { name: "Baby Celebrations", description: "Welcome the little one with joy", price: 5999, category: "baby", image: "https://images.unsplash.com/photo-1515488042361-ee00e3ddd4e4?w=600&q=80" },
-    { name: "Corporate Events", description: "Professional event management for businesses", price: 24999, category: "corporate", image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80" },
-    { name: "Flash Mobs", description: "Surprise performances that create memories", price: 19999, category: "flashmob", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80" },
-    { name: "Custom Events", description: "Tell us your dream, we'll make it happen", price: 0, category: "custom", image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80" },
+    {
+      name: "Basic Package",
+      description: "2 Gifts (1 Frame, 1 Snapbook) • 1 Bouquet • Cake ½ kg • Fire Guns",
+      price: 2700,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+    },
+    {
+      name: "2800 Package",
+      description: "2 Cold Fires • 2 Gifts • 1 Bouquet • Cake ½ kg",
+      price: 2800,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+    },
+    {
+      name: "House Surprise",
+      description: "Popper Blast • 2 Gifts • 1 Bouquet • Cake ½ kg • Fire Guns",
+      price: 2999,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&q=80",
+    },
+    {
+      name: "Banner Surprise",
+      description: "Bike Banner Surprise • 2 Gifts • 1 Bouquet • Cake ½ kg • Fire Guns",
+      price: 2900,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80",
+    },
+    {
+      name: "Teddy Surprise",
+      description: "₹2700 Basic Package + Teddy",
+      price: 3700,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1515488042361-ee00e3ddd4e4?w=600&q=80",
+    },
+    {
+      name: "Flash Mob (Local)",
+      description: "4 Dancers • Customized Music • Entry Surprise • 1 Gift • 4 Flowers",
+      price: 5000,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80",
+    },
+    {
+      name: "Flash Mob with Teddy",
+      description: "4 Dancers • Customized Music • Entry Surprise • 1 Gift • 4 Flowers • Teddy",
+      price: 6500,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80",
+    },
+    {
+      name: "Cracker Surprise",
+      description: "30 Crackers • 2 Gifts • 1 Bouquet • Cake ½ kg • Fire Guns",
+      price: 4700,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&q=80",
+    },
+    {
+      name: "Crackers with Cold Fires Surprise",
+      description: "30 Crackers • 2 Cold Fires • 2 Gifts • 1 Bouquet • Cake ½ kg",
+      price: 4800,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+    },
+    {
+      name: "Teddy with Crackers Surprise",
+      description: "Teddy • 30 Crackers • 2 Gifts • 1 Bouquet • Cake ½ kg • Fire Guns",
+      price: 5700,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1515488042361-ee00e3ddd4e4?w=600&q=80",
+    },
+    {
+      name: "24 Hrs Surprise",
+      description: "Cracker Surprise • Teddy Surprise • Beach Surprise & more — ₹7,000 to ₹12,000",
+      price: 7000,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
+    },
+    {
+      name: "Bike T-Shirt Surprise",
+      description: "3 Bikers with photo stickers on backs • 2 A4 Frames • Bouquet with 2 Flowers • 3 Chocolates",
+      price: 5000,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80",
+    },
+    {
+      name: "Surprise at Restaurant",
+      description: "5 Flowers • Cake ½ kg • 2 Gifts",
+      price: 3000,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",
+    },
+    {
+      name: "Car Decoration",
+      description: "Car decoration with pictures • 30 Shots • 8 Cold Fires • Red Carpet • 1 kg Cake • 5 Gifts • Cake Cutting Setup",
+      price: 12000,
+      category: "standard",
+      image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=600&q=80",
+    },
+    {
+      name: "Mega Surprise Package",
+      description: "Dance Flashmob • Teddy • 5 Gifts • 30 Shots • 6 Cold Fires • Beach Decoration • Cake with Fire Guns",
+      price: 20000,
+      category: "exclusive",
+      image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80",
+    },
+    {
+      name: "Birthday Decoration",
+      description: "Customized birthday decoration based on your theme and choice",
+      price: 5000,
+      category: "decoration",
+      image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80",
+    },
+    {
+      name: "Mandapam / Haldi & Event Decoration",
+      description: "Mandapam decoration, haldi setups, and all types of event decoration — customized to your vision",
+      price: 0,
+      category: "decoration",
+      image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
+    },
   ];
+
+  const featuredNames = new Set([
+    "Mega Surprise Package",
+    "24 Hrs Surprise",
+    "Car Decoration",
+    "Flash Mob with Teddy",
+    "Birthday Decoration",
+    "House Surprise",
+  ]);
 
   for (const [i, svc] of eventServices.entries()) {
     const existing = await prisma.businessService.findFirst({
       where: { businessId: eventsBusiness.id, name: svc.name },
     });
+    const data = {
+      ...svc,
+      sortOrder: i,
+      featured: featuredNames.has(svc.name),
+    };
     if (existing) {
-      await prisma.businessService.update({
-        where: { id: existing.id },
-        data: { ...svc, sortOrder: i, featured: i < 3 },
-      });
+      await prisma.businessService.update({ where: { id: existing.id }, data });
     } else {
-      await prisma.businessService.create({
-        data: { businessId: eventsBusiness.id, ...svc, sortOrder: i, featured: i < 3 },
-      });
+      await prisma.businessService.create({ data: { businessId: eventsBusiness.id, ...data } });
     }
   }
+
+  await prisma.businessService.deleteMany({
+    where: {
+      businessId: eventsBusiness.id,
+      name: { notIn: eventServices.map((s) => s.name) },
+    },
+  });
 
   // J Foods
   const foodsBusiness = await prisma.business.upsert({
