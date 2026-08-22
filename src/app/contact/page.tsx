@@ -2,6 +2,8 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { MasterNav } from "@/components/layout/MasterNav";
+import { Footer } from "@/components/layout/Footer";
 import { CONTACT } from "@/lib/contact";
 
 const BUSINESS_OPTIONS = [
