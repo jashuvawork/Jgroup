@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: jgroup
+      POSTGRES_PASSWORD: jgroup_dev
+      POSTGRES_DB: jgroup
+    volumes:
+      - jgroup_pg_data:/var/lib/postgresql/data
+
+volumes:
+  jgroup_pg_data:

@@ -9,10 +9,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Fall back to the local SQLite file when DATABASE_URL is not provided
-    // (e.g. CI/Vercel builds where no .env is present) so `prisma migrate
-    // deploy` in the build step does not fail. This mirrors .env.example and
-    // the runtime client in src/lib/prisma.ts, which always uses ./dev.db.
-    url: process.env["DATABASE_URL"] ?? "file:./dev.db",
+    url: process.env["DATABASE_URL"] ?? "postgresql://jgroup:jgroup_dev@localhost:5432/jgroup",
   },
 });

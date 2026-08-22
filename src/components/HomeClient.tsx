@@ -1,98 +1,133 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { IntroSequence } from "@/components/3d/IntroSequence";
-import { Fallback2D } from "@/components/3d/Fallback2D";
+import { CinematicHub } from "@/components/experience/CinematicHub";
+import { ScrollJourney } from "@/components/experience/ScrollJourney";
+import { MobileJourney } from "@/components/experience/MobileJourney";
 import { MasterNav } from "@/components/layout/MasterNav";
 import { SoundToggle } from "@/components/ui/SoundToggle";
-import { useWebGL } from "@/contexts/WebGLContext";
+import { WORLD_LAYOUT } from "@/lib/hub-worlds";
 import type { BusinessWithTheme } from "@/lib/types";
-
-const JWorldHub = dynamic(
-  () => import("@/components/3d/JWorldHub").then((m) => m.JWorldHub),
-  { ssr: false, loading: () => <div className="absolute inset-0 bg-black" /> }
-);
 
 interface HomeClientProps {
   businesses: BusinessWithTheme[];
 }
 
+type Phase = "intro" | "hub";
+
 export function HomeClient({ businesses }: HomeClientProps) {
-  const [introComplete, setIntroComplete] = useState(false);
-  const [showExplore, setShowExplore] = useState(false);
-  const { supported, reducedMotion } = useWebGL();
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [transitionRoute, setTransitionRoute] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
-  const handleIntroComplete = useCallback(() => {
-    setIntroComplete(true);
-    setTimeout(() => setShowExplore(true), 500);
+  useEffect(() => {
+    setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    const skipped = sessionStorage.getItem("j-skip-intro");
+    if (skipped === "1") setPhase("hub");
   }, []);
 
+  const enterHub = useCallback(() => setPhase("hub"), []);
+
+  const skipIntro = useCallback(() => {
+    sessionStorage.setItem("j-skip-intro", "1");
+    enterHub();
+  }, [enterHub]);
+
   const handleEnterWorld = useCallback(
-    (route: string) => router.push(route),
+    (route: string) => {
+      setTransitionRoute(route);
+      setTimeout(() => router.push(route), 1200);
+    },
     [router]
   );
 
-  const use3D = supported && !reducedMotion;
+  const transitionBusiness = businesses.find((b) => b.route === transitionRoute);
+  const transitionLayout = transitionBusiness ? WORLD_LAYOUT[transitionBusiness.slug] : null;
 
-  if (!introComplete) {
-    return <IntroSequence onComplete={handleIntroComplete} />;
+  if (phase === "intro" && !isMobile) {
+    return <IntroSequence onEnter={enterHub} onSkip={skipIntro} />;
   }
 
-  if (!use3D) {
+  if (isMobile) {
     return (
       <>
-        <MasterNav transparent />
-        <Fallback2D businesses={businesses} />
+        <MobileJourney
+          businesses={businesses}
+          onEnterWorld={handleEnterWorld}
+          onExplore={skipIntro}
+        />
         <SoundToggle />
       </>
     );
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
-      <MasterNav transparent />
-      <JWorldHub businesses={businesses} onEnterWorld={handleEnterWorld} />
+    <div className="bg-[#050504]">
+      <div className="relative min-h-screen w-full">
+        <MasterNav transparent />
 
-      {showExplore && (
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10"
-        >
-          <div className="bg-gradient-to-t from-black via-black/80 to-transparent px-6 pb-12 pt-32">
-            <div id="explore" className="pointer-events-auto mx-auto max-w-4xl text-center">
-              <p className="text-xs tracking-[0.3em] uppercase text-white/40">
-                Explore J
-              </p>
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                {businesses.map((biz) => (
-                  <button
-                    key={biz.id}
-                    onClick={() => handleEnterWorld(biz.route)}
-                    className="group rounded-xl border border-white/10 bg-white/5 px-4 py-4 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10"
-                  >
-                    <p className="text-sm font-light text-white">{biz.name}</p>
-                    <p className="mt-1 text-xs text-white/40">{biz.tagline}</p>
-                    <span className="mt-2 inline-block text-[10px] tracking-[0.2em] uppercase text-white/30 group-hover:text-white/60">
-                      Enter World
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-8 text-[10px] tracking-wider text-white/20">
-                More J worlds are coming.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
+        <AnimatePresence>
+          {phase === "hub" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <CinematicHub businesses={businesses} onEnterWorld={handleEnterWorld} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      <SoundToggle />
+        <AnimatePresence>
+          {transitionRoute && transitionBusiness && transitionLayout && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[300] flex items-center justify-center bg-black"
+            >
+              <motion.div
+                initial={{ scale: 1.05, filter: "blur(0px)" }}
+                animate={{ scale: 1.3, filter: "blur(14px)" }}
+                transition={{ duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={transitionBusiness.heroImage || transitionLayout.photo}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-black/55" />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 28 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.75 }}
+                className="relative z-10 px-6 text-center"
+              >
+                <p
+                  className="font-[family-name:var(--font-cinzel)] text-4xl tracking-[0.12em] md:text-6xl"
+                  style={{ color: transitionLayout.accent }}
+                >
+                  {transitionLayout.label}
+                </p>
+                <p className="mt-4 text-lg text-white/60 md:text-xl">{transitionLayout.tagline}</p>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <SoundToggle />
+      </div>
+
+      <ScrollJourney businesses={businesses} onEnterWorld={handleEnterWorld} />
     </div>
   );
 }
