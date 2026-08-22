@@ -11,7 +11,48 @@ const pool = new Pool(getPgPoolConfig(connectionString));
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+/** Remove duplicate rows left by non-idempotent seed runs (keeps oldest per key). */
+async function dedupeSeedData() {
+  await prisma.$executeRaw`
+    DELETE FROM "BusinessService" a
+    USING "BusinessService" b
+    WHERE a.id > b.id
+      AND a."businessId" = b."businessId"
+      AND a.name = b.name
+  `;
+  await prisma.$executeRaw`
+    DELETE FROM "BusinessProduct" a
+    USING "BusinessProduct" b
+    WHERE a.id > b.id
+      AND a."businessId" = b."businessId"
+      AND a.name = b.name
+  `;
+  await prisma.$executeRaw`
+    DELETE FROM "Category" a
+    USING "Category" b
+    WHERE a.id > b.id
+      AND a."businessId" = b."businessId"
+      AND a.slug = b.slug
+  `;
+  await prisma.$executeRaw`
+    DELETE FROM "FoundationProject" a
+    USING "FoundationProject" b
+    WHERE a.id > b.id
+      AND a."businessId" = b."businessId"
+      AND a.title = b.title
+  `;
+  await prisma.$executeRaw`
+    DELETE FROM "Review" a
+    USING "Review" b
+    WHERE a.id > b.id
+      AND a."businessId" = b."businessId"
+      AND a.comment = b.comment
+  `;
+}
+
 async function main() {
+  await dedupeSeedData();
+
   const adminPassword = await bcrypt.hash("admin123", 12);
 
   await prisma.admin.upsert({
@@ -102,9 +143,19 @@ async function main() {
   ];
 
   for (const [i, svc] of eventServices.entries()) {
-    await prisma.businessService.create({
-      data: { businessId: eventsBusiness.id, ...svc, sortOrder: i, featured: i < 3 },
+    const existing = await prisma.businessService.findFirst({
+      where: { businessId: eventsBusiness.id, name: svc.name },
     });
+    if (existing) {
+      await prisma.businessService.update({
+        where: { id: existing.id },
+        data: { ...svc, sortOrder: i, featured: i < 3 },
+      });
+    } else {
+      await prisma.businessService.create({
+        data: { businessId: eventsBusiness.id, ...svc, sortOrder: i, featured: i < 3 },
+      });
+    }
   }
 
   // J Foods
@@ -147,10 +198,21 @@ async function main() {
 
   const categoryMap: Record<string, string> = {};
   for (const [i, cat] of foodCategories.entries()) {
-    const created = await prisma.category.create({
-      data: { businessId: foodsBusiness.id, ...cat, sortOrder: i },
+    const existing = await prisma.category.findFirst({
+      where: { businessId: foodsBusiness.id, slug: cat.slug },
     });
-    categoryMap[cat.slug] = created.id;
+    const category =
+      existing ??
+      (await prisma.category.create({
+        data: { businessId: foodsBusiness.id, ...cat, sortOrder: i },
+      }));
+    if (existing) {
+      await prisma.category.update({
+        where: { id: existing.id },
+        data: { name: cat.name, sortOrder: i },
+      });
+    }
+    categoryMap[cat.slug] = category.id;
   }
 
   const foodProducts = [
@@ -167,9 +229,19 @@ async function main() {
   ];
 
   for (const [i, product] of foodProducts.entries()) {
-    await prisma.businessProduct.create({
-      data: { businessId: foodsBusiness.id, ...product, sortOrder: i },
+    const existing = await prisma.businessProduct.findFirst({
+      where: { businessId: foodsBusiness.id, name: product.name },
     });
+    if (existing) {
+      await prisma.businessProduct.update({
+        where: { id: existing.id },
+        data: { ...product, sortOrder: i },
+      });
+    } else {
+      await prisma.businessProduct.create({
+        data: { businessId: foodsBusiness.id, ...product, sortOrder: i },
+      });
+    }
   }
 
   // J Foundation
@@ -208,9 +280,19 @@ async function main() {
   ];
 
   for (const project of foundationProjects) {
-    await prisma.foundationProject.create({
-      data: { businessId: foundationBusiness.id, ...project },
+    const existing = await prisma.foundationProject.findFirst({
+      where: { businessId: foundationBusiness.id, title: project.title },
     });
+    if (existing) {
+      await prisma.foundationProject.update({
+        where: { id: existing.id },
+        data: project,
+      });
+    } else {
+      await prisma.foundationProject.create({
+        data: { businessId: foundationBusiness.id, ...project },
+      });
+    }
   }
 
   // Sample reviews
@@ -222,7 +304,12 @@ async function main() {
   ];
 
   for (const review of reviews) {
-    await prisma.review.create({ data: review });
+    const existing = await prisma.review.findFirst({
+      where: { businessId: review.businessId, comment: review.comment },
+    });
+    if (!existing) {
+      await prisma.review.create({ data: review });
+    }
   }
 
   console.log("Seed completed successfully!");
