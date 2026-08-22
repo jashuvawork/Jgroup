@@ -7,7 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SectionLabel, AmbientOrbs, PremiumButton } from "@/components/ui/Premium";
 import { CONTACT } from "@/lib/contact";
 import { BOOKING_NOTES, EVENT_CATEGORY_LABELS, MALL_BEACH_GIFTS } from "@/lib/events-content";
-import { PACKAGE_MEDIA } from "@/lib/events-gallery";
+import { PACKAGE_MEDIA, sortPackagesByFlyer } from "@/lib/events-gallery";
 import { EventsMediaGallery } from "@/components/business/EventsMediaGallery";
 import { formatCurrency } from "@/lib/utils";
 
@@ -19,6 +19,7 @@ interface Service {
   image: string | null;
   category: string | null;
   featured: boolean;
+  sortOrder: number;
 }
 
 interface BusinessData {
@@ -108,9 +109,9 @@ export function EventsWorld({ business }: { business: BusinessData }) {
   const grouped = CATEGORY_ORDER.map((cat) => ({
     key: cat,
     label: EVENT_CATEGORY_LABELS[cat] ?? cat,
-    items: business.services
-      .filter((s) => (s.category ?? "standard") === cat)
-      .sort((a, b) => (a.price ?? 0) - (b.price ?? 0)),
+    items: sortPackagesByFlyer(
+      business.services.filter((s) => (s.category ?? "standard") === cat)
+    ),
   })).filter((g) => g.items.length > 0);
 
   return (
