@@ -7,4 +7,6 @@ export const CONTACT = {
   whatsappUrl: "https://wa.me/918341068133",
   email: "hello@jgroup.space",
   location: "Amalapuram, Andhra Pradesh, India",
+  instagram: "https://www.instagram.com/j_surprise_events_/",
+  instagramHandle: "@j_surprise_events_",
 } as const;

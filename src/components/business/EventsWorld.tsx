@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 import { SectionLabel, AmbientOrbs, PremiumButton } from "@/components/ui/Premium";
 import { CONTACT } from "@/lib/contact";
 import { BOOKING_NOTES, EVENT_CATEGORY_LABELS, MALL_BEACH_GIFTS } from "@/lib/events-content";
+import { PACKAGE_MEDIA, sortPackagesByFlyer } from "@/lib/events-gallery";
+import { EventsMediaGallery } from "@/components/business/EventsMediaGallery";
 import { formatCurrency } from "@/lib/utils";
 
 interface Service {
@@ -17,6 +19,7 @@ interface Service {
   image: string | null;
   category: string | null;
   featured: boolean;
+  sortOrder: number;
 }
 
 interface BusinessData {
@@ -30,6 +33,7 @@ interface BusinessData {
 
 const EVENTS_NAV = [
   { href: "#packages", label: "Packages" },
+  { href: "#gallery", label: "Gallery" },
   { href: "#gifts", label: "Gifts" },
   { href: "#book", label: "Book Now" },
 ];
@@ -48,6 +52,7 @@ function PackageCard({
   accent: string;
 }) {
   const onRequest = svc.price === 0 || svc.price == null;
+  const imageSrc = PACKAGE_MEDIA[svc.name] || svc.image;
 
   return (
     <motion.div
@@ -57,10 +62,10 @@ function PackageCard({
       transition={{ delay: (i % 4) * 0.06, duration: 0.5 }}
       className="card-glow group flex flex-col overflow-hidden rounded-2xl border border-white/[0.06]"
     >
-      {svc.image && (
+      {imageSrc && (
         <div className="relative h-44 overflow-hidden sm:h-48">
           <Image
-            src={svc.image}
+            src={imageSrc}
             alt={svc.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -104,9 +109,9 @@ export function EventsWorld({ business }: { business: BusinessData }) {
   const grouped = CATEGORY_ORDER.map((cat) => ({
     key: cat,
     label: EVENT_CATEGORY_LABELS[cat] ?? cat,
-    items: business.services
-      .filter((s) => (s.category ?? "standard") === cat)
-      .sort((a, b) => (a.price ?? 0) - (b.price ?? 0)),
+    items: sortPackagesByFlyer(
+      business.services.filter((s) => (s.category ?? "standard") === cat)
+    ),
   })).filter((g) => g.items.length > 0);
 
   return (
@@ -222,6 +227,8 @@ export function EventsWorld({ business }: { business: BusinessData }) {
           </section>
         ))}
       </div>
+
+      <EventsMediaGallery primary={primary} accent={accent} />
 
       {/* Mall & beach gift inclusions */}
       <section id="gifts" className="relative border-t border-white/[0.06] px-6 py-20 md:py-28">
